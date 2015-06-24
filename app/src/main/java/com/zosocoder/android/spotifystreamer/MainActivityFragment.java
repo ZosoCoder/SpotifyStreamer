@@ -1,12 +1,15 @@
 package com.zosocoder.android.spotifystreamer;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment {
 
     private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+    public static final String ARTIST = "Led Zeppelin";
     private ArtistAdapter artistAdapter;
 
     public MainActivityFragment() {
@@ -39,6 +43,17 @@ public class MainActivityFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.lvArtistsResult);
         listView.setAdapter(artistAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Artist artist = artistAdapter.getItem(position);
+//              Toast.makeText(getActivity(), artist.name + " selected", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getActivity(), TopTracksActivity.class);
+                intent.putExtra(ARTIST, artist.name);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }

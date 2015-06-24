@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -39,19 +42,18 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
-        ArtistHolder holder = null;
+        ArtistHolder holder;
 
-        if (row == null) {
+        if (convertView == null) {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-            row = inflater.inflate(resource, parent, false);
+            convertView = inflater.inflate(resource, parent, false);
 
             holder = new ArtistHolder();
-            holder.artistName = (TextView) row.findViewById(R.id.tv_artist);
-            holder.artistThumb = (ImageView) row.findViewById(R.id.iv_artist_thumb);
+            holder.artistName = (TextView) convertView.findViewById(R.id.tv_artist);
+            holder.artistThumb = (ImageView) convertView.findViewById(R.id.iv_artist_thumb);
 
-            row.setTag(holder);
-        } else { holder = (ArtistHolder) row.getTag(); }
+            convertView.setTag(holder);
+        } else { holder = (ArtistHolder) convertView.getTag(); }
 
         Artist artist = data[position];
         FetchArtistThumbTask artistThumbTask = new FetchArtistThumbTask(holder.artistThumb);
@@ -59,24 +61,38 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
         holder.artistName.setText(artist.name);
         artistThumbTask.execute(artist.imageUrl);
 
-        return row;
+        return convertView;
     }
 
     public class FetchArtistThumbTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImg;
+        private final String LOG_TAG = FetchArtistThumbTask.class.getSimpleName();
 
         public FetchArtistThumbTask(ImageView bmImg) { this.bmImg = bmImg; }
 
         @Override
         protected Bitmap doInBackground(String... params) {
-            String url = params[0];
             Bitmap artistImg = null;
+            HttpURLConnection urlConnection = null;
 
             try {
-                InputStream is = new URL(url).openStream();
+                URL url = new URL(params[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream is = urlConnection.getInputStream();
                 artistImg = BitmapFactory.decodeStream(is);
-            } catch (IOException e) {
+                Log.v(LOG_TAG, "Setting Bitmap: " + params[0]);
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
+                artistImg = BitmapFactory.decodeResource(
+                        context.getResources(), R.drawable.question);
+
+            } catch (Exception e) {
+                Log.v(LOG_TAG, "NETWORK ERROR");
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
             }
 
             return artistImg;

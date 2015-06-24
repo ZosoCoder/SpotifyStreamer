@@ -4,4 +4,6 @@
     <string name="action_settings">Settings</string>
     <string name="search">Search</string>
     <string name="artist_name">My Band Name</string>
+    <string name="label_artist">Artist</string>
+    <string name="title_activity_top_tracks">Top Tracks</string>
 </resources>
