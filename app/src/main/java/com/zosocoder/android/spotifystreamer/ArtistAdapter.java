@@ -15,6 +15,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.androidquery.AQuery;
+
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,14 +25,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- * Created by Tony on 6/23/2015.
- */
 public class ArtistAdapter extends ArrayAdapter<Artist> {
 
     Context context;
     int resource;
     Artist data[] = null;
+    private AQuery aq;
 
     public ArtistAdapter(Context context, int resource, Artist[] data) {
         super(context, resource, data);
@@ -46,6 +46,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
 
         if (convertView == null) {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
+
             convertView = inflater.inflate(resource, parent, false);
 
             holder = new ArtistHolder();
@@ -56,50 +57,12 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
         } else { holder = (ArtistHolder) convertView.getTag(); }
 
         Artist artist = data[position];
-        FetchArtistThumbTask artistThumbTask = new FetchArtistThumbTask(holder.artistThumb);
+        aq = new AQuery(convertView);
 
         holder.artistName.setText(artist.name);
-        artistThumbTask.execute(artist.imageUrl);
+        aq.id(holder.artistThumb).image(artist.imageUrl, true, true, 0, R.drawable.question);
 
         return convertView;
-    }
-
-    public class FetchArtistThumbTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImg;
-        private final String LOG_TAG = FetchArtistThumbTask.class.getSimpleName();
-
-        public FetchArtistThumbTask(ImageView bmImg) { this.bmImg = bmImg; }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            Bitmap artistImg = null;
-            HttpURLConnection urlConnection = null;
-
-            try {
-                URL url = new URL(params[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream is = urlConnection.getInputStream();
-                artistImg = BitmapFactory.decodeStream(is);
-                Log.v(LOG_TAG, "Setting Bitmap: " + params[0]);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                artistImg = BitmapFactory.decodeResource(
-                        context.getResources(), R.drawable.question);
-
-            } catch (Exception e) {
-                Log.v(LOG_TAG, "NETWORK ERROR");
-            } finally {
-                if (urlConnection != null) urlConnection.disconnect();
-            }
-
-            return artistImg;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) { bmImg.setImageBitmap(bitmap); }
     }
 
     static class ArtistHolder {

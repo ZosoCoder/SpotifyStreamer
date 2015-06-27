@@ -2,7 +2,9 @@ package com.zosocoder.android.spotifystreamer;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,9 +33,9 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
         Artist artist_data[] = new Artist[] {
-                new Artist("Led Zeppelin", "https://i.scdn.co/image/89f85b03f128056ea2d0ca941be999853bea3d7c"),
-                new Artist("Slayer", "https://i.scdn.co/image/43a01ad508ac0ce27d5a0da97e08cc857af0f43b"),
-                new Artist("Pink Floyd", "https://i.scdn.co/image/792a417e8500405180a7746908afd7d5e3a30585")
+              new Artist("Led Zeppelin", "https://i.scdn.co/image/89f85b03f128056ea2d0ca941be999853bea3d7c"),
+              new Artist("Slayer", "https://i.scdn.co/image/43a01ad508ac0ce27d5a0da97e08cc857af0f43b"),
+              new Artist("Pink Floyd", "https://i.scdn.co/image/792a417e8500405180a7746908afd7d5e3a30585")
         };
 
         artistAdapter = new ArtistAdapter(
@@ -56,5 +58,13 @@ public class MainActivityFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    public class FetchArtistTask extends AsyncTask<String,Void,Artist[]> {
+
+        @Override
+        protected Artist[] doInBackground(String... params) {
+            return null;
+        }
     }
 }
