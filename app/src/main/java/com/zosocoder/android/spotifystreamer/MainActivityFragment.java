@@ -2,13 +2,31 @@ package com.zosocoder.android.spotifystreamer;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.Buffer;
+import java.util.AbstractList;
+import java.util.ArrayList;
 
 
 /**
@@ -27,16 +45,10 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
-        Artist artist_data[] = new Artist[] {
-              new Artist("Led Zeppelin", "https://i.scdn.co/image/bc9b5c84f5806bdf34879f5c9a0628eaadb348c8"),
-              new Artist("Slayer", "https://i.scdn.co/image/44fcee9becb9e2a4e7af2722481dfeec2b3fed1e"),
-              new Artist("Pink Floyd", "https://i.scdn.co/image/b954149fed21dcbafe1cee4c30454eb934c384ee")
-        };
-
         artistAdapter = new ArtistAdapter(
                 getActivity(),
                 R.layout.list_item_artist,
-                artist_data);
+                new ArrayList<Artist>());
 
         ListView listView = (ListView) rootView.findViewById(R.id.lvArtistsResult);
         listView.setAdapter(artistAdapter);
@@ -52,14 +64,115 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
+        final EditText searchText = (EditText) rootView.findViewById(R.id.etSearchArtist);
+
+        final Button searchBtn = (Button) rootView.findViewById(R.id.btnSearch);
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FetchArtistTask task = new FetchArtistTask();
+                task.execute(searchText.getText().toString());
+            }
+        });
+
         return rootView;
     }
 
     public class FetchArtistTask extends AsyncTask<String,Void,Artist[]> {
 
+        private Artist[] getArtistsFromJson(String artistJsonStr) throws JSONException{
+            final String ARTISTS_OBJ = "artists";
+            final String ITEMS = "items";
+            final String ARTIST_NAME = "name";
+            final String IMAGES = "images";
+            final String URL = "url";
+
+            JSONObject artistJson = new JSONObject(artistJsonStr);
+            JSONArray artistArray = artistJson.getJSONObject(ARTISTS_OBJ).getJSONArray(ITEMS);
+
+            Artist[] artists = new Artist[artistArray.length()];
+
+            for (int i = 0; i < artistArray.length(); i++) {
+                String name, url;
+
+                JSONObject artistObj = artistArray.getJSONObject(i);
+
+                name = artistObj.getString(ARTIST_NAME);
+                JSONArray imagesArray = artistObj.getJSONArray(IMAGES);
+
+                if (imagesArray.length() > 0) {
+                    JSONObject imageObj = imagesArray.getJSONObject(0);
+                    url = imageObj.getString(URL);
+                } else {
+                    url = "";
+                }
+
+                artists[i] = new Artist(name,url);
+            }
+
+            return artists;
+        }
+
         @Override
         protected Artist[] doInBackground(String... params) {
+            if (params.length == 0) return null;
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String type = "artist";
+            String artistJsonStr = null;
+
+            try {
+                final String SPOTIFY_BASE_URL = "https://api.spotify.com/v1/search?";
+                final String QUERY_PARAM = "q";
+                final String TYPE_PARAM = "type";
+
+                Uri builtUri = Uri.parse(SPOTIFY_BASE_URL).buildUpon()
+                        .appendQueryParameter(QUERY_PARAM, params[0])
+                        .appendQueryParameter(TYPE_PARAM, type)
+                        .build();
+
+                URL url = new URL(builtUri.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuilder builder = new StringBuilder();
+
+                if (inputStream == null) return null;
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {builder.append(line).append('\n'); }
+                if (builder.length() == 0) return null;
+
+                artistJsonStr = builder.toString();
+                Log.v(LOG_TAG, "JSON: " + artistJsonStr);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error: ", e);
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
+
+                if (reader != null) {
+                    try {reader.close();}
+                    catch (final IOException e) { Log.e(LOG_TAG, "Error closing stream", e); }
+                }
+            }
+
+            try { return getArtistsFromJson(artistJsonStr); }
+            catch (JSONException e) { Log.e(LOG_TAG, e.getMessage(), e); }
+
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Artist[] artists) {
+            if (artists != null) {
+                artistAdapter.clear();
+                artistAdapter.addAll(artists);
+            }
         }
     }
 }
