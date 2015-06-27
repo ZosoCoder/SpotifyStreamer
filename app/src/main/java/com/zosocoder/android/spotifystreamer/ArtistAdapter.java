@@ -30,7 +30,6 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
     Context context;
     int resource;
     Artist data[] = null;
-    private AQuery aq;
 
     public ArtistAdapter(Context context, int resource, Artist[] data) {
         super(context, resource, data);
@@ -43,6 +42,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ArtistHolder holder;
+        AQuery aq;
 
         if (convertView == null) {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
