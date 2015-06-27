@@ -6,4 +6,5 @@
     <string name="artist_name">My Band Name</string>
     <string name="label_artist">Artist</string>
     <string name="title_activity_top_tracks">Top Tracks</string>
+    <string name="artist_picture_desc">Artist Picture</string>
 </resources>

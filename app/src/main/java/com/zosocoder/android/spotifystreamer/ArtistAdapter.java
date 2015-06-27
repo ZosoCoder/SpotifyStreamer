@@ -2,12 +2,6 @@ package com.zosocoder.android.spotifystreamer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
-
-import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class ArtistAdapter extends ArrayAdapter<Artist> {
 
@@ -46,12 +32,11 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
 
         if (convertView == null) {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-
             convertView = inflater.inflate(resource, parent, false);
 
             holder = new ArtistHolder();
-            holder.artistName = (TextView) convertView.findViewById(R.id.tv_artist);
-            holder.artistThumb = (ImageView) convertView.findViewById(R.id.iv_artist_thumb);
+            holder.artistName = (TextView) convertView.findViewById(R.id.tv_item_text);
+            holder.artistThumb = (ImageView) convertView.findViewById(R.id.iv_item_thumb);
 
             convertView.setTag(holder);
         } else { holder = (ArtistHolder) convertView.getTag(); }
