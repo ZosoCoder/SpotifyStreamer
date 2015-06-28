@@ -12,13 +12,15 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 
+import java.util.ArrayList;
+
 public class ArtistTrackAdapter extends ArrayAdapter<ArtistTrack> {
 
     Context context;
     int resource;
-    ArtistTrack data[] = null;
+    ArrayList<ArtistTrack> data = null;
 
-    public ArtistTrackAdapter(Context context, int resource, ArtistTrack[] data) {
+    public ArtistTrackAdapter(Context context, int resource, ArrayList<ArtistTrack> data) {
         super(context, resource, data);
 
         this.context = context;
@@ -43,7 +45,7 @@ public class ArtistTrackAdapter extends ArrayAdapter<ArtistTrack> {
             convertView.setTag(holder);
         } else { holder = (ArtistTrackHolder) convertView.getTag();}
 
-        ArtistTrack artistTrack = data[position];
+        ArtistTrack artistTrack = data.get(position);
         aq = new AQuery(convertView);
 
         holder.trackTitle.setText(artistTrack.trackName);

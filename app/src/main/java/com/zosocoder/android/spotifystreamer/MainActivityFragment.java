@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,7 +49,7 @@ public class MainActivityFragment extends Fragment {
         artistAdapter = new ArtistAdapter(
                 getActivity(),
                 R.layout.list_item_artist,
-                new ArrayList<Artist>());
+                new ArrayList<>());
 
         ListView listView = (ListView) rootView.findViewById(R.id.lvArtistsResult);
         listView.setAdapter(artistAdapter);
@@ -84,6 +85,7 @@ public class MainActivityFragment extends Fragment {
             final String ARTISTS_OBJ = "artists";
             final String ITEMS = "items";
             final String ARTIST_NAME = "name";
+            final String ARTIST_ID = "id";
             final String IMAGES = "images";
             final String URL = "url";
 
@@ -93,11 +95,12 @@ public class MainActivityFragment extends Fragment {
             Artist[] artists = new Artist[artistArray.length()];
 
             for (int i = 0; i < artistArray.length(); i++) {
-                String name, url;
+                String name, url, id;
 
                 JSONObject artistObj = artistArray.getJSONObject(i);
 
                 name = artistObj.getString(ARTIST_NAME);
+                id = artistObj.getString(ARTIST_ID);
                 JSONArray imagesArray = artistObj.getJSONArray(IMAGES);
 
                 if (imagesArray.length() > 0) {
@@ -107,7 +110,7 @@ public class MainActivityFragment extends Fragment {
                     url = "";
                 }
 
-                artists[i] = new Artist(name,url);
+                artists[i] = new Artist(name,url,id);
             }
 
             return artists;
@@ -170,6 +173,13 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(Artist[] artists) {
             if (artists != null) {
+                if (artists.length == 0)
+                    Toast.makeText(
+                            getActivity(),
+                            "No Results - Please refine your search.",
+                            Toast.LENGTH_SHORT)
+                            .show();
+
                 artistAdapter.clear();
                 artistAdapter.addAll(artists);
             }

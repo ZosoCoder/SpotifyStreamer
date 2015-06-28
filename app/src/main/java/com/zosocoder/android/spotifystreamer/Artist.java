@@ -6,18 +6,21 @@ import android.os.Parcelable;
 public class Artist implements Parcelable{
     public String name;
     public String imageUrl;
+    public String id;
 
     public Artist() { super(); }
 
     public Artist(Parcel in) {
         this.name = in.readString();
         this.imageUrl = in.readString();
+        this.id = in.readString();
     }
 
-    public Artist(String name, String imageUrl) {
+    public Artist(String name, String imageUrl, String id) {
         super();
         this.name = name;
         this.imageUrl = imageUrl;
+        this.id = id;
     }
 
     @Override
@@ -27,6 +30,7 @@ public class Artist implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(imageUrl);
+        dest.writeString(id);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
