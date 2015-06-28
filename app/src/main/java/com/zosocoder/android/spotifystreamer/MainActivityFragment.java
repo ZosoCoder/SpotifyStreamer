@@ -49,7 +49,7 @@ public class MainActivityFragment extends Fragment {
         artistAdapter = new ArtistAdapter(
                 getActivity(),
                 R.layout.list_item_artist,
-                new ArrayList<>());
+                new ArrayList<Artist>());
 
         ListView listView = (ListView) rootView.findViewById(R.id.lvArtistsResult);
         listView.setAdapter(artistAdapter);
@@ -152,7 +152,7 @@ public class MainActivityFragment extends Fragment {
                 if (builder.length() == 0) return null;
 
                 artistJsonStr = builder.toString();
-                Log.v(LOG_TAG, "JSON: " + artistJsonStr);
+//                Log.v(LOG_TAG, "JSON: " + artistJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error: ", e);
             } finally {

@@ -50,7 +50,7 @@ public class ArtistTrackAdapter extends ArrayAdapter<ArtistTrack> {
 
         holder.trackTitle.setText(artistTrack.trackName);
         holder.trackAlbum.setText(artistTrack.albumName);
-        Log.v("TRACKS", "Setting track: " + artistTrack.trackName);
+//        Log.v("TRACKS", "Setting track: " + artistTrack.trackName);
         aq.id(holder.albumImage).image(artistTrack.albumImgUrl, true, true, 0, R.drawable.question);
 
         return convertView;
